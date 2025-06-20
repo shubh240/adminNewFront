@@ -10,7 +10,9 @@ import { basePath } from './context/constants';
 //   </StrictMode>);
   
 createRoot(document.getElementById('root')).render(
-    <BrowserRouter basename={basePath}>
-      <App />
-    </BrowserRouter>
-    );
+    <StrictMode>
+      <BrowserRouter basename={basePath}>
+        <App />
+      </BrowserRouter>
+    </StrictMode>
+);

@@ -4,7 +4,7 @@ export const developedByLink = 'https://www.linkedin.com/in/jateen-koshti-thedev
 export const developedBy = 'Jateen Koshti';
 export const contactUs = 'koshtijatin26@gmail.com';
 export const buyLink = '';
-export const basePath = '/seller';
+export const basePath = '/admin';
 export const DEFAULT_PAGE_TITLE = 'Clozzet';
 export const colorVariants = ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'dark', 'light', 'link'];
 

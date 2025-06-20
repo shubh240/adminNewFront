@@ -8,7 +8,7 @@ import { useNotificationContext } from '@/context/useNotificationContext'
 import ComponentContainerCard from '@/components/ComponentContainerCard'
 import { Grid, _ } from 'gridjs-react'
 import Swal from 'sweetalert2'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Spinner from '@/components/Spinner'
 
 export default function Home() {
@@ -21,55 +21,25 @@ export default function Home() {
   const didFetch = useRef(false)
 
   const [categories, setCategories] = useState([])
-  const [selectedCategory, setSelectedCategory] = useState(null)
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingId, setEditingId] = useState(null)
+  const [name, setName] = useState('')
+  const [image, setImage] = useState(null)
+  const [imagePreview, setImagePreview] = useState(null)
 
-  const [sellerCategories, setSellerCategories] = useState([])
-
+  console.log('editingId',editingId);
+  
   const fetchCategories = async () => {
     try {
       setLoading(true)
 
-      axios
-        .get(`${API_URL_ADMIN}category/list-category`)
-        .then((res) => {
-          const options = res.data.data.map((cat) => ({
-            value: cat._id,
-            label: cat.name,
-          }))
-          setCategories(options)
-          setLoading(false)
-        })
-        .catch((err) => {
-          setLoading(false)
-
-          console.error('Failed to fetch categories', err)
-          showNotification({
-            message: 'Failed to fetch categories',
-            variant: 'danger',
-          })
-        })
-    } catch (err) {
-      setLoading(false)
-
-      showNotification({
-        message: 'Failed to data',
-        variant: 'danger',
-      })
-    }
-  }
-
-  const fetchSellerCategories = async () => {
-    try {
-      setLoading(true)
-
-      const res = await axios.get(`${API_URL_SELLER}category/list-category`, {
+      const res = await axios.get(`${API_URL_ADMIN}category/list-category`, {
         headers: {
           Authorization: `Bearer ${user?.token}`,
         },
       })
       setLoading(false)
-
-      setSellerCategories(res.data.data)
+      setCategories(res.data.data || []);
     } catch (err) {
       setLoading(false)
 
@@ -84,69 +54,51 @@ export default function Home() {
   useEffect(() => {
     if (didFetch.current) return
     fetchCategories()
-    fetchSellerCategories()
-
     didFetch.current = true
   }, [])
 
   // Handle form submit
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+ const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    if (!selectedCategory) {
-      showNotification({
-        // title: 'Validation',
-        message: 'Please select a category',
-        variant: 'warning',
-      })
-      return
+    if (!name) {
+      showNotification({ message: 'Please enter a category name', variant: 'warning' })
+      return;
     }
+
+    if (!image && !isEditing) {
+      showNotification({ message: 'Please select image', variant: 'warning' })
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("name", name);
+    if (image) formData.append("image", image);
+
+    setLoading(true)
+    const url = isEditing
+      ? `${API_URL_ADMIN}category/edit-category/${editingId}`
+      : `${API_URL_ADMIN}category/add-category`;
 
     try {
-      setLoading(true)
+      const method = isEditing ? axios.put : axios.post;
 
-      const payload = {
-        sellerId: user?._id,
-        categoryId: selectedCategory.value,
-      }
-
-      const response = await axios.post(
-        `${API_URL_SELLER}category/add-category`,
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${user?.token}`,
-          },
+      await method(url, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${user?.token}`,
         },
-      )
-
+      });
       setLoading(false)
-
-      if (response.data.success) {
-        showNotification({
-          message: 'Category assigned successfully!',
-          variant: 'success',
-        })
-      } else {
-        showNotification({
-          message: 'Failed to assign category',
-          variant: 'danger',
-        })
-      }
-
-      fetchSellerCategories()
-
-      setSelectedCategory(null)
+      showNotification({ message: isEditing ? "Category updated successfully!" : "Category added successfully!", variant: 'success' })
+      handleCancel();
+      fetchCategories();
     } catch (error) {
       setLoading(false)
-
-      console.error('Error adding category:', error?.response?.data?.message)
-      showNotification({
-        message: error?.response?.data?.message || 'Something went wrong. Please try again.',
-        variant: 'danger',
-      })
+      console.error("Error saving category:", error);
+      showNotification({ message: isEditing ? "Failed to update category." : "Failed to add category.", variant: 'warning' })
     }
-  }
+  };
 
   const handleDelete = async (id) => {
     const result = await Swal.fire({
@@ -161,7 +113,7 @@ export default function Home() {
 
     if (result.isConfirmed) {
       try {
-        await axios.delete(`${API_URL_SELLER}category/delete-category/${id}`, {
+        await axios.delete(`${API_URL_ADMIN}category/delete-category/${id}`, {
           headers: {
             Authorization: `Bearer ${user?.token}`,
           },
@@ -170,7 +122,7 @@ export default function Home() {
           message: 'The category has been deleted.',
           variant: 'success',
         })
-        fetchSellerCategories()
+        fetchCategories()
       } catch (error) {
         showNotification({
           message: error?.response?.data?.message || 'Something went wrong.',
@@ -184,53 +136,158 @@ export default function Home() {
     return <Spinner size="sm" color="primary" />
   }
 
+  const handleCancel = () => {
+    setEditingId(null);
+    setIsEditing(false);
+    setName('');
+    setImage(null);
+    setImagePreview(null);
+  };
+
   return (
     <>
       <PageMetaData title="Category" />
       <ComponentContainerCard id="category" title="Category List">
-        <div style={{ maxWidth: '400px' }} className="mt-2">
+        <div className="mt-3" style={{ maxWidth: '500px' }}>
           <form onSubmit={handleSubmit}>
+            {/* Category Name */}
             <div className="mb-3">
-              <label htmlFor="category" className="form-label">
-                Select Category
+              <label htmlFor="category-name" className="form-label">
+                Category Name
               </label>
-              <Select id="category" options={categories} value={selectedCategory} onChange={setSelectedCategory} placeholder="Choose a category..." />
+              <input
+                type="text"
+                id="category-name"
+                className="form-control"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
             </div>
 
-            <button type="submit" className="btn btn-primary">
-              Add
-            </button>
+            {/* Category Image */}
+            <div className="mb-3">
+              <label htmlFor="category-image" className="form-label">
+                Category Image
+              </label>
+              <input
+                type="file"
+                id="category-image"
+                className="form-control"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  setImage(file);
+                  if (file) {
+                    setImagePreview(URL.createObjectURL(file));
+                  } else {
+                    setImagePreview(null);
+                  }
+                }}
+              />
+
+              {/* Preview Image */}
+              {imagePreview && (
+                <div className="mt-2">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    width={100}
+                    style={{ borderRadius: '4px', objectFit: 'cover' }}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Submit Button */}
+            <div className="d-flex justify-content-between">
+              {isEditing ? (
+                <>
+                  <button type="submit" className="btn btn-success w-50 me-2">
+                    Update
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary w-50"
+                    onClick={handleCancel}
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <button type="submit" className="btn btn-primary">
+                  Add Category
+                </button>
+              )}
+            </div>
+
           </form>
         </div>
       </ComponentContainerCard>
+
       <ComponentContainerCard id="category" title="Category List">
-        {sellerCategories.length === 0 ? (
+        {categories.length === 0 ? (
           <p className="text-muted">No categories assigned yet.</p>
         ) : (
           <Grid
-            data={sellerCategories.map((item, index) => [index + 1, item?.category?.name || 'N/A', item._id])}
+            data={categories.map((item, index) => [
+              index + 1, 
+              item?.name || "N/A",
+              item?.image || "N/A", 
+              item?._id
+            ])}
             columns={[
               'No',
-              'Category',
+              {
+                name: 'Category Name',
+                sort: true,
+                formatter: (cell, row) => {
+                  const id = row.cells[3]?.data;
+                  return _(
+                       <span
+                          style={{ color: 'blue', cursor: 'pointer' }}
+                          onClick={() => navigate(`/categories/subcategories/${id}`)}
+                        >
+                          {cell}
+                        </span>
+                  )
+                }
+              },
+              {
+                name: 'Category Image',
+                sort: false,
+                formatter: (cell) =>
+                  _(<img src={cell} alt="size chart" width="60" style={{ borderRadius: '4px' }} />),
+              },
               {
                 name: 'Action',
                 sort: false,
                 formatter: (cell, row) => {
-                  const id = row.cells[2].data
-                  const category = sellerCategories.find((sc) => sc._id === id)
-                  const categoryId = category?.categoryId
+                  const id = row.cells[3]?.data;
+                  const name = row.cells[1]?.data;
+                  const image = row.cells[2]?.data;
+                  
                   return _(
                     <>
-                      {/* <button className="rounded-pill btn btn-sm btn-outline-primary me-2" onClick={() => navigate(`/categories/${id}`)}> */}
                       <button
                         className="rounded-pill btn btn-sm btn-outline-primary me-2"
-                        onClick={() => navigate(`/categories/${categoryId}/${id}`)}>
-                        Sub Category
+                        onClick={() => {
+                          setIsEditing(true);
+                          setEditingId(id)
+                          setName(name)
+                          setImage(null)
+                          setImagePreview(image)
+                        }}
+                      >
+                        Edit
                       </button>
-                      <button className="rounded-pill btn btn-sm btn-outline-danger" onClick={() => handleDelete(id)}>
+                      <button
+                        className="rounded-pill btn btn-sm btn-outline-danger"
+                        onClick={() => handleDelete(id)}
+                      >
                         Delete
                       </button>
-                    </>,
+                    </>
                   )
                 },
               },

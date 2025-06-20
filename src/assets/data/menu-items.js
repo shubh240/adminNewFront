@@ -18,6 +18,13 @@ export const MENU_ITEMS = [
     url: '/categories',
   },
   {
+    key: 'config',
+    icon: 'solar:ruler-outline',
+
+    label: 'Config',
+    url: '/configs',
+  },
+  {
     key: 'sizeChart',
     icon: 'solar:ruler-outline',
 

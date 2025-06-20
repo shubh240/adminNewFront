@@ -8,41 +8,37 @@ import { useNotificationContext } from '@/context/useNotificationContext'
 import ComponentContainerCard from '@/components/ComponentContainerCard'
 import { Grid, _ } from 'gridjs-react'
 import Swal from 'sweetalert2'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import Spinner from '@/components/Spinner'
+import { Value } from 'sass'
 
 export default function Home() {
   const navigate = useNavigate()
-  const { categoryId } = useParams();
+
   const { user } = useAuthContext()
   const { showNotification } = useNotificationContext()
   const [loading, setLoading] = useState(false)
 
   const didFetch = useRef(false)
 
-  const [subCategories, setSubCategories] = useState([])
+  const [configs, setConfigs] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState(null)
   const [name, setName] = useState('')
-  const [image, setImage] = useState(null)
-  const [imagePreview, setImagePreview] = useState(null)
+  const [value, setValue] = useState('')
 
-  console.log('editingId',editingId);
-  
-  const fetchCategories = async () => {
+  const fetchConfigs = async () => {
     try {
       setLoading(true)
 
-      const res = await axios.get(`${API_URL_ADMIN}subCategory/list-sub-category`, {
-        params: {
-            category: categoryId,
-          },
+      const res = await axios.get(`${API_URL_ADMIN}config/list-config`, {
+        // params: search ? { name: search } : {},
         headers: {
           Authorization: `Bearer ${user?.token}`,
         },
       })
       setLoading(false)
-      setSubCategories(res.data.data || []);
+      setConfigs(res.data.data || []);
     } catch (err) {
       setLoading(false)
 
@@ -53,10 +49,10 @@ export default function Home() {
     }
   }
 
-  // Fetch subCategories
+  // Fetch configs
   useEffect(() => {
     if (didFetch.current) return
-    fetchCategories()
+    fetchConfigs()
     didFetch.current = true
   }, [])
 
@@ -65,76 +61,75 @@ export default function Home() {
     e.preventDefault();
 
     if (!name) {
-      showNotification({ message: 'Please enter a subcategory name', variant: 'warning' })
+      showNotification({ message: 'Please enter a Config name', variant: 'warning' })
+      return;
+    }
+    if (!value) {
+      showNotification({ message: 'Please enter a Config value', variant: 'warning' })
       return;
     }
 
-    if (!image && !isEditing) {
-      showNotification({ message: 'Please select image', variant: 'warning' })
-      return;
-    }
+    const payload = {
+      name,
+      value,
+    };
 
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("category", categoryId);
-    if (image) formData.append("image", image);
 
     setLoading(true)
     const url = isEditing
-      ? `${API_URL_ADMIN}subCategory/edit-sub-category/${editingId}`
-      : `${API_URL_ADMIN}subCategory/add-sub-category`;
+      ? `${API_URL_ADMIN}config/edit-config/${editingId}`
+      : `${API_URL_ADMIN}config/add-config`;
 
     try {
       const method = isEditing ? axios.put : axios.post;
 
-      await method(url, formData, {
+      await method(url, payload, {
         headers: {
-          "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${user?.token}`,
         },
       });
       setLoading(false)
-      showNotification({ message: isEditing ? "Category updated successfully!" : "Category added successfully!", variant: 'success' })
+      showNotification({ message: isEditing ? "Config updated successfully!" : "Config added successfully!", variant: 'success' })
       handleCancel();
-      fetchCategories();
+      fetchConfigs();
     } catch (error) {
       setLoading(false)
-      console.error("Error saving subCategory:", error);
-      showNotification({ message: isEditing ? "Failed to update subCategory." : "Failed to add subCategory.", variant: 'warning' })
+      console.error("Error saving Config:", error);
+      showNotification({ message: isEditing ? "Failed to update Config." : "Failed to add Config.", variant: 'warning' })
     }
   };
 
-  const handleDelete = async (id) => {
-    const result = await Swal.fire({
-      title: 'Are you sure?',
-      text: 'This subCategory will be permanently deleted.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, delete it!',
-    })
+  // const handleDelete = async (id) => {
+  //   const result = await Swal.fire({
+  //     title: 'Are you sure?',
+  //     text: 'This Config will be permanently deleted.',
+  //     icon: 'warning',
+  //     showCancelButton: true,
+  //     confirmButtonColor: '#d33',
+  //     cancelButtonColor: '#3085d6',
+  //     confirmButtonText: 'Yes, delete it!',
+  //   })
 
-    if (result.isConfirmed) {
-      try {
-        await axios.delete(`${API_URL_ADMIN}subCategory/delete-sub-category/${id}`, {
-          headers: {
-            Authorization: `Bearer ${user?.token}`,
-          },
-        })
-        showNotification({
-          message: 'The subCategory has been deleted.',
-          variant: 'success',
-        })
-        fetchCategories()
-      } catch (error) {
-        showNotification({
-          message: error?.response?.data?.message || 'Something went wrong.',
-          variant: 'danger',
-        })
-      }
-    }
-  }
+  //   if (result.isConfirmed) {
+  //     try {
+  //       await axios.delete(`${API_URL_ADMIN}config/delete-config/${id}`, {
+  //         headers: {
+  //           Authorization: `Bearer ${user?.token}`,
+  //         },
+  //       })
+  //       showNotification({
+  //         message: 'The Config has been deleted.',
+  //         variant: 'success',
+  //       })
+  //       fetchConfigs()
+  //     } catch (error) {
+  //       showNotification({
+  //         message: error?.response?.data?.message || 'Something went wrong.',
+  //         variant: 'danger',
+  //       })
+  //     }
+  //   }
+  // }
 
   if (loading) {
     return <Spinner size="sm" color="primary" />
@@ -144,63 +139,40 @@ export default function Home() {
     setEditingId(null);
     setIsEditing(false);
     setName('');
-    setImage(null);
-    setImagePreview(null);
+    setValue('');
   };
 
   return (
     <>
-      <PageMetaData title="Category" />
-      <ComponentContainerCard id="subCategory" title="Subcategory List">
+      <PageMetaData title="Config" />
+      <ComponentContainerCard id="Config" title="Config List">
         <div className="mt-3" style={{ maxWidth: '500px' }}>
           <form onSubmit={handleSubmit}>
-            {/* Category Name */}
             <div className="mb-3">
-              <label htmlFor="subCategory-name" className="form-label">
-                Subcategory Name
+              <label htmlFor="config-name" className="form-label">
+                Config Name
               </label>
               <input
                 type="text"
-                id="subCategory-name"
+                id="config-name"
                 className="form-control"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
               />
             </div>
-
-            {/* Category Image */}
             <div className="mb-3">
-              <label htmlFor="subCategory-image" className="form-label">
-                Subcategory Image
+              <label htmlFor="config-value" className="form-label">
+                value
               </label>
               <input
-                type="file"
-                id="subCategory-image"
+                type="text"
+                id="config-value"
                 className="form-control"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  setImage(file);
-                  if (file) {
-                    setImagePreview(URL.createObjectURL(file));
-                  } else {
-                    setImagePreview(null);
-                  }
-                }}
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                required
               />
-
-              {/* Preview Image */}
-              {imagePreview && (
-                <div className="mt-2">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    width={100}
-                    style={{ borderRadius: '4px', objectFit: 'cover' }}
-                  />
-                </div>
-              )}
             </div>
 
             {/* Submit Button */}
@@ -220,7 +192,7 @@ export default function Home() {
                 </>
               ) : (
                 <button type="submit" className="btn btn-primary">
-                  Add Subcategory
+                  Add Config
                 </button>
               )}
             </div>
@@ -229,28 +201,23 @@ export default function Home() {
         </div>
       </ComponentContainerCard>
 
-      <ComponentContainerCard id="subCategory" title="Subcategory List">
-        {subCategories.length === 0 ? (
-          <p className="text-muted">No subCategories assigned yet.</p>
+      <ComponentContainerCard id="Config" title="Config List">
+        {configs.length === 0 ? (
+          <p className="text-muted">No configs assigned yet.</p>
         ) : (
           <Grid
-            data={subCategories.map((item, index) => [index + 1, item?.name || 'N/A',item?.image || 'N/A', item._id])}
+            data={configs.map((item, index) => [index + 1, item?.name || 'N/A',item?.value || 'N/A', item._id])}
             columns={[
               'No',
-              'Subcategory Name',
-              {
-                name: 'Subcategory Image',
-                sort: false,
-                formatter: (cell) =>
-                  _(<img src={cell} alt="size chart" width="60" style={{ borderRadius: '4px' }} />),
-              },
+              'Name',
+              'Value',
               {
                 name: 'Action',
                 sort: false,
                 formatter: (cell, row) => {
                   const id = row.cells[3]?.data;
                   const name = row.cells[1]?.data;
-                  const image = row.cells[2]?.data;
+                  const value = row.cells[2]?.data;
                   
                   return _(
                     <>
@@ -260,18 +227,17 @@ export default function Home() {
                           setIsEditing(true);
                           setEditingId(id)
                           setName(name)
-                          setImage(null)
-                          setImagePreview(image)
+                          setValue(value)
                         }}
                       >
                         Edit
                       </button>
-                      <button
+                      {/* <button
                         className="rounded-pill btn btn-sm btn-outline-danger"
                         onClick={() => handleDelete(id)}
                       >
                         Delete
-                      </button>
+                      </button> */}
                     </>
                   )
                 },
