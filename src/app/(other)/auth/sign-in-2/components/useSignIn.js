@@ -7,7 +7,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import * as yup from 'yup'
 import { useAuthContext } from '@/context/useAuthContext'
 import { useNotificationContext } from '@/context/useNotificationContext'
-import { API_URL_SELLER } from '../../../../../context/constants'
+import { API_URL_ADMIN } from '../../../../../context/constants'
 const useSignIn = () => {
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
@@ -35,10 +35,10 @@ const useSignIn = () => {
     setLoading(true)
     try {
       // Define the base URL
-      const baseUrl = API_URL_SELLER
+      const baseUrl = API_URL_ADMIN
 
       // Perform the login request using axios
-      const res = await axios.post(`${baseUrl}user/login`, values, {
+      const res = await axios.post(`${baseUrl}admin/login`, values, {
         headers: {
           'Content-Type': 'application/json',
         },

@@ -5,6 +5,7 @@ import { Navigate } from 'react-router-dom';
 const Analytics = lazy(() => import('@/app/(admin)/dashboard/analytics/page'));
 const Categories = lazy(() => import('@/app/(admin)/categories/page'));
 const SubCategories = lazy(() => import('@/app/(admin)/subcategories/page'));
+const Config = lazy(() => import('@/app/(admin)/config/page'));
 const SizeCharts = lazy(() => import('@/app/(admin)/sizechart/page'));
 
 // Products
@@ -65,9 +66,14 @@ const sellerRoutes = [{
   element: <Categories />
 },
 {
-  path: '/categories/:categoryId/:id',
+  path: '/categories/subcategories/:categoryId',
   name: 'Sub Categories',
   element: <SubCategories />
+},
+{
+  path: '/configs',
+  name: 'Configs',
+  element: <Config />
 },
 {
   path: '/sizeCharts',
