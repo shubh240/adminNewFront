@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 import PageMetaData from '@/components/PageTitle'
-import { API_URL_SELLER } from '../../../context/constants'
+import { API_URL_ADMIN } from '../../../context/constants'
 import { useAuthContext } from '../../../context/useAuthContext'
 import { useNotificationContext } from '@/context/useNotificationContext'
 import { Grid, _ } from 'gridjs-react'
@@ -26,11 +26,9 @@ export default function Home() {
   const fetchData = async () => {
     try {
       setLoading(true)
-      const payload = {
-        sellerId: user?._id,
-      }
-      const res = await axios.post(`${API_URL_SELLER}order/list-order`, 
-        payload,
+      
+      const res = await axios.post(`${API_URL_ADMIN}order/list-order`, 
+        {},
         {
           headers: {
             Authorization: `Bearer ${user?.token}`,
@@ -47,41 +45,6 @@ export default function Home() {
       })
     }
   }
-
-const handleStatusChange = async (orderId, newStatus) => {
-  try {
-    const result = await Swal.fire({
-      title: `Are you sure you want to mark as ${newStatus}?`,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: `Yes, ${newStatus}`,
-    });
-
-    if (!result.isConfirmed) return;
-
-    await axios.put(
-      `${API_URL_SELLER}order/update-order-status/${orderId}`,
-      { status: newStatus },
-      {
-        headers: {
-          Authorization: `Bearer ${user?.token}`,
-        },
-      }
-    );
-
-    showNotification({
-      message: `Order status updated to ${newStatus}`,
-      variant: 'success',
-    });
-
-    fetchData(); // refresh data
-  } catch (err) {
-    showNotification({
-      message: 'Failed to update order status',
-      variant: 'danger',
-    });
-  }
-};
 
 
   useEffect(() => {
@@ -109,7 +72,13 @@ const handleStatusChange = async (orderId, newStatus) => {
             <p className="text-muted">No orders found.</p>
           ) : (
             <Grid
-              data={data?.map((item) => [item, item?.customerId?.fullName, item?.paymentStatus, item?.totalAmount, item?.createdAt])}
+              data={data?.map((item) => [
+                item, 
+                item?.customerId?.fullName, 
+                item?.paymentStatus, 
+                item?.totalAmount, 
+                item?.createdAt
+              ])}
               columns={[
                 {
                   name: 'Order No.',
@@ -135,27 +104,6 @@ const handleStatusChange = async (orderId, newStatus) => {
                   formatter: (cell, row) => {
                     const item = row.cells[0].data
                     return formatToIST(item?.createdAt)
-                  },
-                },
-                {
-                  name: 'Order Status',
-                  formatter: (cell, row) => {
-                    const item = row.cells[0].data;
-                    const currentStatus = item?.orderStatus || "Pending";
-
-                    return _(
-                      <select
-                        className="form-select form-select-sm"
-                        value={currentStatus}
-                        onChange={(e) => handleStatusChange(item._id, e.target.value)}
-                        disabled={currentStatus !== "Pending"} // Optional: lock after decision
-                        style={{ minWidth: "130px" }}
-                      >
-                        <option value="Pending" disabled>Pending</option>
-                        <option value="Accepted">Accept</option>
-                        <option value="Rejected">Reject</option>
-                      </select>
-                    );
                   },
                 },
                 {

@@ -6,23 +6,18 @@ const Analytics = lazy(() => import('@/app/(admin)/dashboard/analytics/page'));
 const Categories = lazy(() => import('@/app/(admin)/categories/page'));
 const SubCategories = lazy(() => import('@/app/(admin)/subcategories/page'));
 const Config = lazy(() => import('@/app/(admin)/config/page'));
-const SizeCharts = lazy(() => import('@/app/(admin)/sizechart/page'));
+const Banners = lazy(() => import('@/app/(admin)/banners/page'));
+const Colors = lazy(() => import('@/app/(admin)/colors/page'));
+const Advertisements = lazy(() => import('@/app/(admin)/advertisements/page'));
+const Contents = lazy(() => import('@/app/(admin)/content/page'));
 
-// Products
-const ProductsLists= lazy(() => import('@/app/(admin)/products/list'));
-const ProductsAdd= lazy(() => import('@/app/(admin)/products/add'));
-const ProductsEdit= lazy(() => import('@/app/(admin)/products/edit'));
-
-const InventoryList = lazy(() => import('@/app/(admin)/products/inventory/list'));
-const InventoryAdd = lazy(() => import('@/app/(admin)/products/inventory/add'));
+// Stores
+const StoresList= lazy(() => import('@/app/(admin)/stores/list'));
+const StoresAdd= lazy(() => import('@/app/(admin)/stores/add'));
+const StoresEdit= lazy(() => import('@/app/(admin)/stores/edit'));
 
 const OrdersList= lazy(() => import('@/app/(admin)/orders/list'));
 const OrdersDetails= lazy(() => import('@/app/(admin)/orders/details'));
-
-const CouponsLists = lazy(() => import('@/app/(admin)/coupons/list'));
-const CouponsAdd = lazy(() => import('@/app/(admin)/coupons/add'));
-const CouponsEdit = lazy(() => import('@/app/(admin)/coupons/edit'));
-
 
 // const Finance = lazy(() => import('@/app/(admin)/dashboard/finance/page'))
 // const Sales = lazy(() => import('@/app/(admin)/dashboard/sales/page'))
@@ -76,49 +71,39 @@ const sellerRoutes = [{
   element: <Config />
 },
 {
-  path: '/sizeCharts',
-  name: 'SizeCharts',
-  element: <SizeCharts />
+  path: '/banners',
+  name: 'Banners',
+  element: <Banners />
 },
 {
-  path: '/coupons-list',
-  name: 'Coupons',
-  element: <CouponsLists />
+  path: '/colors',
+  name: 'Colors',
+  element: <Colors />
 },
 {
-  path: '/coupons-add',
-  name: 'Coupon Add',
-  element: <CouponsAdd />
+  path: '/advertisements',
+  name: 'Advertisements',
+  element: <Advertisements />
 },
 {
-  path: '/coupons-edit/:id',
-  name: 'Coupons Edit',
-  element: <CouponsEdit />
+  path: '/contents',
+  name: 'Contents',
+  element: <Contents />
 },
 {
-  path: '/products-list',
-  name: 'Products',
-  element: <ProductsLists />
+  path: '/stores-list',
+  name: 'Stores',
+  element: <StoresList />
 },
 {
-  path: '/products-add',
-  name: 'Product Add',
-  element: <ProductsAdd />
+  path: '/stores-add',
+  name: 'Store Add',
+  element: <StoresAdd />
 },
 {
-  path: '/products-edit/:id',
-  name: 'Product Edit',
-  element: <ProductsEdit />
-},
-{
-  path: '/products-inventory-list/:productId',
-  name: 'Products',
-  element: <InventoryList />
-},
-{
-  path: '/products-inventory-add/:productId',
-  name: 'Product Add',
-  element: <InventoryAdd />
+  path: '/stores-edit/:id',
+  name: 'Store Edit',
+  element: <StoresEdit />
 },
 {
   path: '/orders-list',

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 import PageMetaData from '@/components/PageTitle'
-import { API_URL_SELLER } from '../../../context/constants'
+import { API_URL_ADMIN } from '../../../context/constants'
 import { useAuthContext } from '../../../context/useAuthContext'
 import { useNotificationContext } from '@/context/useNotificationContext'
 import { Grid, _ } from 'gridjs-react'
@@ -26,12 +26,13 @@ export default function Home() {
     try {
       setLoading(true)
 
-      const res = await axios.get(`${API_URL_SELLER}products/list-product`, {
+      const res = await axios.get(`${API_URL_ADMIN}store/list-stores`, {
         headers: {
           Authorization: `Bearer ${user?.token}`,
         },
       })
-      setData(res?.data?.data?.products)
+      const { stores } = res.data.data;
+      setData(stores)
       setLoading(false)
     } catch (err) {
       setLoading(false)
@@ -54,7 +55,7 @@ export default function Home() {
   const handleStatusToggle = async (id) => {
     const result = await Swal.fire({
       title: 'Are you sure?',
-      text: 'Do you want to toggle the product status?',
+      text: 'Do you want to toggle the store status?',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
@@ -66,8 +67,8 @@ export default function Home() {
       try {
         setLoading(true)
 
-        await axios.patch(
-          `${API_URL_SELLER}products/status-product/${id}`,
+        await axios.put(
+          `${API_URL_ADMIN}store/toggle-status-store/${id}`,
           {},
           {
             headers: {
@@ -76,7 +77,48 @@ export default function Home() {
           },
         )
 
-        // Swal.fire('Updated!', 'Product status has been changed.', 'success')
+        showNotification({
+          message: 'Status updated successfully!',
+          variant: 'success',
+        })
+        // Refresh the table data
+        fetchData()
+        setLoading(false)
+      } catch (error) {
+        console.error(error)
+        setLoading(false)
+
+        showNotification({
+          message: 'Failed to update status',
+          variant: 'danger',
+        })
+      }
+    }
+  }
+  const handleActiveToggle = async (id) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you want to toggle the store status?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, change it!',
+    })
+
+    if (result.isConfirmed) {
+      try {
+        setLoading(true)
+
+        await axios.put(
+          `${API_URL_ADMIN}store/toggle-active-store/${id}`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${user?.token}`,
+            },
+          },
+        )
 
         showNotification({
           message: 'Status updated successfully!',
@@ -100,7 +142,7 @@ export default function Home() {
   const handleDelete = async (id) => {
     const result = await Swal.fire({
       title: 'Are you sure?',
-      text: 'This product will be permanently deleted.',
+      text: 'This store will be permanently deleted.',
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#d33',
@@ -112,13 +154,13 @@ export default function Home() {
       try {
         setLoading(true)
 
-        await axios.delete(`${API_URL_SELLER}products/delete-product/${id}`, {
+        await axios.delete(`${API_URL_ADMIN}store/delete-store/${id}`, {
           headers: {
             Authorization: `Bearer ${user?.token}`,
           },
         })
         showNotification({
-          message: 'The product has been deleted.',
+          message: 'The store has been deleted.',
           variant: 'success',
         })
         fetchData()
@@ -145,8 +187,8 @@ export default function Home() {
       <Card>
         <CardBody>
           <div className="d-flex align-items-center justify-content-between mb-3">
-            <h4 className="mb-0">Product List</h4>
-            <Link className="btn btn-primary" to={'/products-add'}>
+            <h4 className="mb-0">Stores List</h4>
+            <Link className="btn btn-primary" to={'/stores-add'}>
               Add
             </Link>
           </div>
@@ -155,26 +197,28 @@ export default function Home() {
             <p className="text-muted">No data found.</p>
           ) : (
             <Grid
-              data={data.map((item, index) => [
+              data={data?.map((item, index) => [
                 index + 1,
                 item,
-                item?.name,
-                // item?.sku,
-                item?.brandName,
-                item?.subcategory?.name + ' (' + item?.category?.name + ')' || 'N/A',
+                item?.storeName,
+                `${item?.sellerAuthId?.userInfo?.firstName} ${item?.sellerAuthId?.userInfo?.lastName}`,
+                item?.sellerAuthId?.userAuth?.email,
+                item?.city,
+                `${item?.limitTime?.minimum}-${item?.limitTime?.maximum}`,
+                item?.city
               ])}
               columns={[
                 'No',
                 {
-                  name: 'Image',
+                  name: 'Logo',
                   sort: false,
                   formatter: (cell, row) => {
-                    const product = row.cells[1].data
+                    const store = row.cells[1].data
 
                     return _(
                         <img
-                          src={product?.primaryImage}
-                          alt={product?.name}
+                          src={store?.logoUrl}
+                          alt={store?.name}
                           width="40"
                           height="40"
                           style={{ objectFit: 'cover', borderRadius: '6px' }}
@@ -182,37 +226,38 @@ export default function Home() {
                     )
                   },
                 },
-                'Name',
-                // 'SKU',
-                'Brand',
-                'Sub Category',
+                'Store Name',
+                'Owner',
+                'Email',
+                'City',
+                'Timings',
                 {
-                  name: 'Price',
+                  name: 'Status',
                   sort: false,
                   formatter: (cell, row) => {
-                    const product = row.cells[1].data
+                    const store = row.cells[1].data
+                    const id = store._id
+                    const storeOn = store.storeOn === true
 
                     return _(
-                      <div className="d-flex align-items-center gap-2">
-                        <span className="fw-semibold">{product?.sellingPrice}</span>
-                        {' / '}
-                        <span className="text-muted text-decoration-line-through">{product?.originalPrice}</span>
+                      <div className="form-check form-switch">
+                        <input className="form-check-input" type="checkbox" checked={storeOn} onChange={() => handleStatusToggle(id)} />
                       </div>,
                     )
                   },
                 },
                 {
-                  name: 'Status',
+                  name: 'Active/In-Active',
                   sort: false,
                   formatter: (cell, row) => {
-                    const product = row.cells[1].data
-                    const id = product._id
-                    const isActive = product.status === true
+                    const store = row.cells[1].data
+                    const id = store._id
+                    const isActive = store.isActive === true
 
                     return _(
                       <div className="form-check form-switch">
-                        <input className="form-check-input" type="checkbox" checked={isActive} onChange={() => handleStatusToggle(id)} />
-                      </div>,
+                        <input className="form-check-input" type="checkbox" checked={isActive} onChange={() => handleActiveToggle(id)} />
+                      </div>
                     )
                   },
                 },
@@ -220,15 +265,12 @@ export default function Home() {
                   name: 'Action',
                   sort: false,
                   formatter: (cell, row) => {
-                    const product = row.cells[1].data
-                    const id = product._id
+                    const store = row.cells[1].data
+                    const id = store._id
                     return _(
                       <>
-                        <button className="rounded-pill btn btn-sm btn-outline-primary me-2" onClick={() => navigate(`/products-edit/${id}`)}>
+                        <button className="rounded-pill btn btn-sm btn-outline-primary me-2" onClick={() => navigate(`/stores-edit/${id}`)}>
                           Edit
-                        </button>
-                        <button className="rounded-pill btn btn-sm btn-outline-secondary me-2" onClick={() => navigate(`/products-inventory-list/${id}`)}>
-                          Inventory
                         </button>
                         <button className="rounded-pill btn btn-sm btn-outline-danger" onClick={() => handleDelete(id)}>
                           Delete

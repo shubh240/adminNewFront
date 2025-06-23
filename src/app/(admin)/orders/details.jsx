@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Spinner from '@/components/Spinner';
-import { API_URL_SELLER } from '../../../context/constants';
+import { API_URL_ADMIN } from '../../../context/constants';
 import { useAuthContext } from '../../../context/useAuthContext';
 import { formatToIST } from '../../../helpers/helper';
 import { Button, Badge } from 'react-bootstrap';
@@ -23,7 +23,7 @@ export default function OrderDetails() {
   const fetchOrderDetails = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${API_URL_SELLER}order/order-details/${orderId}`, {
+      const res = await axios.get(`${API_URL_ADMIN}order/order-details/${orderId}`, {
         headers: {
           Authorization: `Bearer ${user?.token}`,
         },
