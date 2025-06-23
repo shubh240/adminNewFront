@@ -19,31 +19,45 @@ export const MENU_ITEMS = [
   },
   {
     key: 'config',
-    icon: 'solar:ruler-outline',
+    icon: 'solar:settings-outline',
 
     label: 'Config',
     url: '/configs',
   },
   {
-    key: 'sizeChart',
+    key: 'banner',
     icon: 'solar:ruler-outline',
 
-    label: 'Size Chart',
-    url: '/sizeCharts',
+    label: 'Banner',
+    url: '/banners',
   },
   {
-    key: 'coupons',
-    icon: 'solar:ticket-outline',
+    key: 'colors',
+    icon: 'solar:palette-outline',
 
-    label: 'Coupons',
-    url: '/coupons-list',
+    label: 'Color',
+    url: '/colors',
   },
   {
-    key: 'products-list',
+    key: 'advertisement',
+    icon: 'solar:ruler-outline',
+
+    label: 'Advertisement',
+    url: '/advertisements',
+  },
+  {
+    key: 'content',
+    icon: 'solar:document-text-outline',
+
+    label: 'Content',
+    url: '/contents',
+  },
+  {
+    key: 'stores-list',
     icon: 'solar:box-outline',
 
-    label: 'Products',
-    url: '/products-list',
+    label: 'Stores',
+    url: '/stores-list',
   },
   {
     key: 'orders-list',
@@ -52,28 +66,28 @@ export const MENU_ITEMS = [
     label: 'Orders',
     url: '/orders-list',
   },
-  {
-    key: 'menuitem',
-    icon: 'solar:share-broken',
-    label: 'Menu Item',
-    children: [
-      {
-        key: 'menu-item-1',
-        label: 'Menu Item 1',
-        parentKey: 'menuitem',
-      },
-      {
-        key: 'menu-item-2',
-        label: 'Menu Item 2',
-        parentKey: 'menuitem',
-        children: [
-          {
-            key: 'menu-sub-item',
-            label: 'Menu Sub Item',
-            parentKey: 'menu-item-2',
-          },
-        ],
-      },
-    ],
-  },
+  // {
+  //   key: 'menuitem',
+  //   icon: 'solar:share-broken',
+  //   label: 'Menu Item',
+  //   children: [
+  //     {
+  //       key: 'menu-item-1',
+  //       label: 'Menu Item 1',
+  //       parentKey: 'menuitem',
+  //     },
+  //     {
+  //       key: 'menu-item-2',
+  //       label: 'Menu Item 2',
+  //       parentKey: 'menuitem',
+  //       children: [
+  //         {
+  //           key: 'menu-sub-item',
+  //           label: 'Menu Sub Item',
+  //           parentKey: 'menu-item-2',
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // },
 ]
