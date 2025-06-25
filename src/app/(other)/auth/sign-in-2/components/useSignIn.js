@@ -21,8 +21,8 @@ const useSignIn = () => {
   const { control, handleSubmit } = useForm({
     resolver: yupResolver(loginFormSchema),
     defaultValues: {
-      email: 'jatin@clozzetindia.com',
-      password: '123456789',
+      email: '',
+      password: '',
     },
   })
   const redirectUser = () => {
