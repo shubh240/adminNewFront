@@ -228,7 +228,7 @@ export default function Home() {
                 name: 'content description',
                 sort: false,
                 formatter: (cell) =>
-                  _(<textarea value={cell} />),
+                  _(cell),
               },
               {
                 name: 'Action',
