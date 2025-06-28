@@ -232,7 +232,7 @@ export default function Home() {
                 'City',
                 'Timings',
                 {
-                  name: 'Status',
+                  name: 'On/Off',
                   sort: false,
                   formatter: (cell, row) => {
                     const store = row.cells[1].data
