@@ -117,6 +117,9 @@ export default function Home() {
                         <button className="rounded-pill btn btn-sm btn-outline-info me-2" onClick={() => navigate(`/order-details/${id}`)}>
                           Details
                         </button>
+                        <button className="rounded-pill btn btn-sm btn-outline-info me-2" onClick={() => navigate(`/invoice/${id}`)}>
+                          Invoice
+                        </button>
                       </>,
                     )
                   },

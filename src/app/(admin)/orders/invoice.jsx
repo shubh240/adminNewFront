@@ -88,21 +88,21 @@ const handleDownloadInvoice = () => {
 
   return (
     <div className="container my-4">
-      <div className="gap-2 mb-3">
+      <div className="d-flex justify-content-end gap-2 mb-3">
         <Button variant="secondary" onClick={() => navigate('/orders-list')}>
           ← Back to Orders
         </Button>
-        {/* <Button variant="outline-primary" onClick={handleDownloadInvoice}>
+        <Button variant="outline-primary" onClick={handleDownloadInvoice}>
           <FaDownload className="me-2" />
           Download Invoice
-        </Button> */}
+        </Button>
       </div>
 
       <div className="border p-4 rounded shadow-sm bg-white" ref={invoiceRef}>
         {/* Header */}
         <div className="d-flex justify-content-between mb-4">
           <div>
-            <h3 className="mb-1">Order Details</h3>
+            <h3 className="mb-1">INVOICE</h3>
             <p className="text-muted">Order #: {orderNumber}</p>
             <p className="text-muted">Date: {formatToIST(createdAt)}</p>
             <p className="text-muted">Transaction ID: {transactionId || 'N/A'}</p>
@@ -209,7 +209,7 @@ const handleDownloadInvoice = () => {
         <p><strong>Tracking ID:</strong> {shipment?.trackingId || 'Not Assigned'}</p>
 
         {/* Delivery Address */}
-        {shipment?.dropAddressLine1 && (
+        {/* {shipment?.dropAddressLine1 && (
           <div className="mb-3">
             <h6>Delivery Address</h6>
             <p>{shipment.dropAddressLine1}{shipment.dropAddressLine2 && `, ${shipment.dropAddressLine2}`}, {shipment.dropCity}, {shipment.dropState} - {shipment.dropPincode}</p>
@@ -219,10 +219,10 @@ const handleDownloadInvoice = () => {
               </a>
             )}
           </div>
-        )}
+        )} */}
 
         {/* Pickup Address */}
-        {shipment?.pickupAddress && (
+        {/* {shipment?.pickupAddress && (
           <div className="mb-3">
             <h6>Pickup Location</h6>
             <p>{shipment.pickupAddress}</p>
@@ -232,10 +232,10 @@ const handleDownloadInvoice = () => {
               </a>
             )}
           </div>
-        )}
+        )} */}
 
         {/* Shipment History */}
-        {shipmentHistory?.length > 0 && (
+        {/* {shipmentHistory?.length > 0 && (
           <div className="mt-4">
             <h5>Shipment Status Timeline</h5>
             <ul className="list-group">
@@ -247,7 +247,7 @@ const handleDownloadInvoice = () => {
               ))}
             </ul>
           </div>
-        )}
+        )} */}
 
       </div>
     </div>
