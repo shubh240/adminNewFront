@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import axios from 'axios'
 import PageMetaData from '@/components/PageTitle'
 import { API_URL_ADMIN } from '../../../context/constants'
@@ -14,6 +14,7 @@ import { formatToIST, getStatusClass } from '../../../helpers/helper'
 
 export default function Home() {
   const navigate = useNavigate()
+  const { storeId } = useParams()
 
   const { user } = useAuthContext()
   const { showNotification } = useNotificationContext()
@@ -26,9 +27,10 @@ export default function Home() {
   const fetchData = async () => {
     try {
       setLoading(true)
-      
+      const requestBody = storeId ? { storeId } : {}
+
       const res = await axios.post(`${API_URL_ADMIN}order/list-order`, 
-        {},
+        requestBody,
         {
           headers: {
             Authorization: `Bearer ${user?.token}`,

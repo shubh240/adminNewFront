@@ -13,6 +13,8 @@ export default function AddStore() {
   const { user } = useAuthContext()
   const { showNotification } = useNotificationContext()
   const autocompleteRef = useRef(null);
+  const accountNumberRegex = /^\d{9,18}$/;
+  const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
 
   const onPlaceChanged = () => {
     const place = autocompleteRef.current?.getPlace();
@@ -90,6 +92,22 @@ export default function AddStore() {
       return
     }
 
+    if (formData.accountNumber && !accountNumberRegex.test(formData.accountNumber)) {
+      showNotification({
+        message: 'Please enter a valid account number (9-18 digits)',
+        variant: 'warning',
+      })
+      return;
+    }
+
+    if (formData.ifsc && !ifscRegex.test(formData.ifsc.toUpperCase())) {
+      showNotification({
+        message: 'Please enter a valid IFSC code (e.g., SBIN0001234)',
+        variant: 'warning',
+      })
+      return;
+    }
+    
     try {
       const form = new FormData()
       for (let key in formData) {
