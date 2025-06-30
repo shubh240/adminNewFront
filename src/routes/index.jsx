@@ -112,6 +112,11 @@ const sellerRoutes = [{
   element: <OrdersList />
 },
 {
+  path: '/orders-list/:storeId',
+  name: 'Orders',
+  element: <OrdersList />
+},
+{
   path: '/order-details/:orderId',
   name: 'Order Details',
   element: <OrdersDetails />

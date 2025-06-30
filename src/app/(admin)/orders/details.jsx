@@ -89,7 +89,7 @@ const handleDownloadInvoice = () => {
   return (
     <div className="container my-4">
       <div className="gap-2 mb-3">
-        <Button variant="secondary" onClick={() => navigate('/orders-list')}>
+        <Button variant="secondary" onClick={() => navigate(-1)}>
           ← Back to Orders
         </Button>
         {/* <Button variant="outline-primary" onClick={handleDownloadInvoice}>

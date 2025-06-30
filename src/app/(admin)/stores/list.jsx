@@ -269,6 +269,12 @@ export default function Home() {
                     const id = store._id
                     return _(
                       <>
+                        <button
+                          className="rounded-pill btn btn-sm btn-outline-info me-2"
+                          onClick={() => navigate(`/orders-list/${id}`)}
+                        >
+                          Orders
+                        </button>
                         <button className="rounded-pill btn btn-sm btn-outline-primary me-2" onClick={() => navigate(`/stores-edit/${id}`)}>
                           Edit
                         </button>
