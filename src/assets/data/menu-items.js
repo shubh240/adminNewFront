@@ -66,6 +66,13 @@ export const MENU_ITEMS = [
     label: 'Orders',
     url: '/orders-list',
   },
+  {
+    key: 'manage-notification',
+    icon: 'solar:clipboard-list-outline',
+
+    label: 'Manage Notifications',
+    url: '/notification',
+  },
   // {
   //   key: 'menuitem',
   //   icon: 'solar:share-broken',
