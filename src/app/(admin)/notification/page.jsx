@@ -33,7 +33,7 @@ export default function SendNotificationPage() {
 
     try {
       setLoading(true)
-      await axios.post(`${API_URL_ADMIN}notification`, formData, {
+      await axios.post(`${API_URL_ADMIN}notification/store`, formData, {
         headers: {
           Authorization: `Bearer ${user?.token}`,
           "Content-Type": "multipart/form-data",
