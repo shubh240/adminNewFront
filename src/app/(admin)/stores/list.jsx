@@ -10,6 +10,7 @@ import Swal from 'sweetalert2'
 import { useNavigate } from 'react-router-dom'
 import { Card, CardBody } from 'react-bootstrap'
 import Spinner from '@/components/Spinner'
+import DateStatusFilter from '@/components/filters/DateStatusFilter'
 
 export default function Home() {
   const navigate = useNavigate()
@@ -18,9 +19,12 @@ export default function Home() {
   const { showNotification } = useNotificationContext()
   const [loading, setLoading] = useState(false)
 
-  const didFetch = useRef(false)
-
   const [data, setData] = useState([])
+  const [filters, setFilters] = useState({
+    startDate: "",
+    endDate: "",
+    status: "",
+  })
 
   const fetchData = async () => {
     try {
@@ -30,6 +34,11 @@ export default function Home() {
         headers: {
           Authorization: `Bearer ${user?.token}`,
         },
+        params: {
+          startDate: filters.startDate,
+          endDate: filters.endDate,
+          status: filters.status !== "" ? filters.status : undefined,
+      },
       })
       const { stores } = res.data.data;
       setData(stores)
@@ -43,14 +52,18 @@ export default function Home() {
       })
     }
   }
-
+console.log('filters',filters)
   // Fetch categories
   useEffect(() => {
-    if (didFetch.current) return
+    // if (didFetch.current) return
     fetchData()
 
-    didFetch.current = true
-  }, [])
+    // didFetch.current = true
+  }, [filters])
+
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters)
+  }
 
   const handleStatusToggle = async (id) => {
     const result = await Swal.fire({
@@ -192,7 +205,16 @@ export default function Home() {
               Add
             </Link>
           </div>
-
+          <DateStatusFilter
+            value={filters}
+            onFilterChange={handleFilterChange}
+            showStatus={true}
+            statusOptions={[
+              { label: 'All', value: '' },
+              { label: 'Active', value: '1' },
+              { label: 'Inactive', value: '0' }
+            ]}
+          />
           {data.length === 0 ? (
             <p className="text-muted">No data found.</p>
           ) : (

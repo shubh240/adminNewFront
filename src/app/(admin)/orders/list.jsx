@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom'
 import { Card, CardBody } from 'react-bootstrap'
 import Spinner from '@/components/Spinner'
 import { formatToIST, getStatusClass } from '../../../helpers/helper'
+import DateStatusFilter from '@/components/filters/DateStatusFilter'
 
 export default function Home() {
   const navigate = useNavigate()
@@ -20,15 +21,20 @@ export default function Home() {
   const { showNotification } = useNotificationContext()
   const [loading, setLoading] = useState(false)
 
-  const didFetch = useRef(false)
-
   const [data, setData] = useState([])
+  const [filters, setFilters] = useState({
+    startDate: '',
+    endDate: '',
+    status: '', // for orderStatus
+  });
 
   const fetchData = async () => {
     try {
       setLoading(true)
-      const requestBody = storeId ? { storeId } : {}
-
+      const requestBody = {
+      ...filters,
+      storeId: storeId || undefined,
+      };
       const res = await axios.post(`${API_URL_ADMIN}order/list-order`, 
         requestBody,
         {
@@ -50,11 +56,8 @@ export default function Home() {
 
 
   useEffect(() => {
-    if (didFetch.current) return
     fetchData()
-
-    didFetch.current = true
-  }, [])
+  }, [filters])
 
   if (loading) {
     return <Spinner size="sm" color="primary" />
@@ -69,6 +72,23 @@ export default function Home() {
           <div className="d-flex align-items-center justify-content-between mb-3">
             <h4 className="mb-0">Order List</h4>
           </div>
+          <DateStatusFilter
+            value={filters}
+            onFilterChange={setFilters}
+            showStatus={true}
+            statusOptions={[
+              { label: 'All', value: '' },
+              { label: 'Pending', value: 'Pending' },
+              { label: 'Accepted', value: 'Accepted' },
+              { label: 'Rejected', value: 'Rejected' },
+              { label: 'Processing', value: 'Processing' },
+              { label: 'Partner Assigned', value: 'Partner Assigned' },
+              { label: 'Out For Delivery', value: 'Out For Delivery' },
+              { label: 'Delivered', value: 'Delivered' },
+              { label: 'Shipment Cancelled', value: 'Shipment Cancelled' },
+              { label: 'Return Initiated', value: 'Return Initiated' },
+            ]}
+          />
 
           {data?.length === 0 ? (
             <p className="text-muted">No orders found.</p>
