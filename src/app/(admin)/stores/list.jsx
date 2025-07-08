@@ -293,7 +293,7 @@ console.log('filters',filters)
                       <>
                         <button
                           className="rounded-pill btn btn-sm btn-outline-info me-2"
-                          onClick={() => navigate(`/orders-list/${id}`)}
+                          onClick={() => navigate(`/orders-list?storeId=${id}`)}
                         >
                           Orders
                         </button>

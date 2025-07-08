@@ -60,6 +60,13 @@ export const MENU_ITEMS = [
     url: '/stores-list',
   },
   {
+    key: 'customers-list',
+    icon: 'solar:clipboard-list-outline',
+
+    label: 'Customers',
+    url: '/customers-list',
+  },
+  {
     key: 'orders-list',
     icon: 'solar:clipboard-list-outline',
 
