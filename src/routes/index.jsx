@@ -16,6 +16,8 @@ const StoresList= lazy(() => import('@/app/(admin)/stores/list'));
 const StoresAdd= lazy(() => import('@/app/(admin)/stores/add'));
 const StoresEdit= lazy(() => import('@/app/(admin)/stores/edit'));
 
+const CustomerList= lazy(() => import('@/app/(admin)/customers/page'));
+
 const OrdersList= lazy(() => import('@/app/(admin)/orders/list'));
 const OrdersDetails= lazy(() => import('@/app/(admin)/orders/details'));
 const Notification= lazy(() => import('@/app/(admin)/notification/page'));
@@ -106,6 +108,11 @@ const sellerRoutes = [{
   path: '/stores-edit/:id',
   name: 'Store Edit',
   element: <StoresEdit />
+},
+{
+  path: '/customers-list',
+  name: 'Customers',
+  element: <CustomerList />
 },
 {
   path: '/orders-list',
