@@ -22,6 +22,12 @@ export default function CustomerListPage() {
         ])
     }
 
+    const exportCustomers = async (filters) => {
+        return await axios.post(`${API_URL_ADMIN}customer/export`, filters, {
+        headers: { Authorization: `Bearer ${user?.token}` },
+        responseType: 'blob',
+        })
+    }
     const columns = [
         {
             name: 'No',
@@ -68,6 +74,7 @@ export default function CustomerListPage() {
         <CommonListing
             title="Customer List"
             fetchDataApi={fetchCustomers}
+            exportApi={exportCustomers}
             columns={columns}
         //   showDateFilter={true}
         />
