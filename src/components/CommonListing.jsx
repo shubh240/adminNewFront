@@ -8,6 +8,7 @@ import DateStatusFilter from '@/components/filters/DateStatusFilter'
 export default function CommonListing({
   title = 'List',
   fetchDataApi,
+  exportApi,
   columns,
   statusOptions = [],
   showStatusFilter = false,
@@ -42,6 +43,26 @@ export default function CommonListing({
 
   if (loading) return <Spinner size="sm" color="primary" />
 
+  const handleExport = async () => {
+    try {
+      const res = await exportApi();
+
+      const blob = new Blob([res.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${title.replace(/\s+/g, "_").toLowerCase()}_export.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (err) {
+      console.error("Export failed", err);
+    }
+  };
+
   return (
     <>
       <PageMetaData />
@@ -50,6 +71,11 @@ export default function CommonListing({
         <CardBody>
           <div className="d-flex align-items-center justify-content-between mb-3">
             <h4 className="mb-0">{title}</h4>
+              {exportApi && (
+              <button className="btn btn-success" onClick={() => handleExport()}>
+                Export
+              </button>
+            )}
           </div>
 
           {(showStatusFilter || showDateFilter) && (
